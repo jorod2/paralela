@@ -16,8 +16,8 @@ def separador_strings(msg:str):
 
 def entrada_db(info:str):
     for i in range(len(info)):
-        if info[i] == ":"
-            return info[:i], msg[i+1:]
+        if info[i] == ":":
+            return info[:i], info[i+1:]
     return info, ""
 
 # Funcion que parsea el futuro value de la base de datos. Devuelve la tupla vacia si encuentra
@@ -25,7 +25,8 @@ def entrada_db(info:str):
 def value(msg:str):
     n = len(msg)
     if msg[0] == '(' and msg[n-1] == ')':
-        l = msg[1:n-1].split(,)
+        text = msg[1:n-1]
+        l = text.split(',')
         try:
             l[0] = int(l[0])
             tuple(l)
@@ -58,21 +59,22 @@ def ft_server(cl_socket, functions_d, db):
         orden, argumento = separador_strings(peticion)
         key, info_str = entrada_db(argumento)
         
-        if orden == alta or orden == modificacion:
+        if orden == "alta" or orden == "modificacion":
             info = value(info_str)
-        
+            print(f"{info}")
             if info == tuple():
+                print("a")
                 respuesta = "Esto no es una peticion valida"
         
             else:
-                respuesta = functions_d[orden](key, info)
+                respuesta = functions_d[orden](db, key, info)
         
         else:
             if info_str != "":
                 respuesta = "Esto no es una peticion valida"
             
             else:
-                respuesta = functions_d[orden](key)
+                respuesta = functions_d[orden](db, key)
        
        
         msj_env = respuesta.encode()
@@ -84,12 +86,12 @@ def ft_server(cl_socket, functions_d, db):
     cl_socket.close()
 
 ## Inicio de funcionamiento del servidor
-db = BaseDeDatos()
+db = basedatos.BaseDeDatos()
 
 functions_d = {
-                "alta": alta
-                "baja": baja
-                "modificacion": modificacion
+                "alta": alta,
+                "baja": baja,
+                "modificacion": modificacion,
                 "consulta": consulta
                 }
 

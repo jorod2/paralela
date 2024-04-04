@@ -71,10 +71,10 @@ class BaseDeDatos:
         if self.keys.add(nombre):
             try:
                 result = self.db[nombre]
-                self.keys.erase(db)
-                return(f"Entrada {nombre} tiene asociado {info}")
+                self.keys.erase(nombre)
+                return(f"Entrada {nombre} tiene asociado {result}")
             except KeyError:
-                self.keys.erase(db)
+                self.keys.erase(nombre)
                 return(f"No existe una entrada {nombre} en la base de datos")
         else:
             return(f"Entrada {nombre} esta ocupada, prueba de nuevo mas tarde")
