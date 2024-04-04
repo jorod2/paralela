@@ -1,119 +1,81 @@
 from threading import Lock
 
-
-class LockedDict:
-    def __innit__(self):
-        self.dict = dict()
+# Esta clase es un set con un lock.
+# Va a servir para llevar cuenta de las claves que estan siendo usadas
+class LockedSet:
+    def __init__(self):
+        self.keys = set()# Esto tengo que cambiarlo por un set
         self.lk = Lock()
-        
-    def add(self, key):
-        if key in self.dict: # Se supone que esta operacion es atomica en CPython. Entiendo que
-            return False      # dependera del interprete usado
-        else:
-            self.lk.acquire()
-            try:
-                self.dict[key] = 0
-            except KeyError:
-                return False
-            self.lk.release()
-            return True
-
-    def ocupar(self, key):
-        if key in self.dict:
-            self.lk.acquire()
-            self.dict[key] = 0
-            try:
-                self.dict[key] = 0
-            except KeyError:
-                return False
-            self.lk.release()
-            return True
-        else:
-            return False
-            
-    def liberar(self, key):
-        if key in self.dict:
-            self.lk.acquire()
-            try:
-                self.dict[key] = 1
-            except KeyError:
-                return False
-            self.lk.release()
-            return True
-        else:
-            return False
     
-    def borrar(self, key):
-        if key in self.dict:
-            self.lk.acquire()
-            del(self.dict[key])
+    def add(self, clave):
+        self.lk.acquire()
+        if not(clave in self.keys):
+            self.keys.add(clave)
             self.lk.release()
             return True
         else:
-            return False
-    
-    def estado(self, key):
-        try:
-            self.lk.acquire(blocking=False)
-            result = self.dict[key]
             self.lk.release()
-            return result
-        except KeyError:
-            return("Esta entrada no existe")
+            return False
 
+    def erase(self, clave):
+        self.lk.acquire()
+        self.keys.discard(clave)
+        self.lk.release()
 
-
+# La clase base de datos. Tiene metodos para dar de alta, baja, consultar, y modificar entradas
+# Consiste en un diccionario con un LockedSet
 class BaseDeDatos:
-    def __innit__(self):
+    def __init__(self):
         self.db = dict()
-        self.keys = LockedDict()
+        self.keys = LockedSet()
     
     def alta(self, nombre, info):
+        if self.keys.add(nombre):
+            if nombre in self.db:
+                self.keys.erase(nombre)
+                return(f"Ya existe una entrada {nombre} en la base de datos. Cambie el registro")
         
-        if nombre in self.keys:
-            return(f"Ya existe una entrada {nombre} en la base de datos. Cambie el registro")
-        
+            else:
+                self.db[nombre] = info
+                self.keys.erase(nombre)
+                return(f"Nueva entrada {nombre} creada con informacion {info}")
         else:
-            self.keys.add(nombre)
-            self.db[nombre] = info
-            self.keys.liberar(nombre)
-            return(f"Nueva entrada {nombre} creada")
+            return ("Esta entrada esta ocupada, prueba de nuevo mas tarde")
     
     def baja(self, nombre):
-        if nombre in self.keys:
-            while !(self.keys.consultar(nombre)): #Mientras que esto no este libre
-                pass
-            self.keys.borrar(nombre)
-            del(self.db[nombre])
-            return(f"Entrada {nombre} eliminada")
+        if self.keys.add(nombre):
+            try:
+                del(self.db[nombre])
+                self.keys.erase(nombre)
+                return(f"Entrada {nombre} eliminada")
+            except KeyError:
+                self.keys.erase(nombre)
+                return(f"Entrada {nombre} no existe")
         else:
-            return(f"Entrada {nombre} no existe")
+            return(f"Entrada {nombre} esta ocupada, prueba de nuevo mas tarde")
+
             
     def modificacion(self, nombre, info):
-        if nombre in self.keys:
-            while !(self.keys.consultar(nombre)):
-                pass
-            self.keys.ocupar(nombre)
+        if self.keys.add(nombre):
             try:
                 self.db[nombre] = info
+                self.keys.erase(nombre)
+                return(f"Entrada {nombre} modificada a {info}")
             except KeyError:
-                return(f"Entrada {nombre} no existe")
-            self.keys.liberar(nombre)
-            return(f"Entrada {nombre} modificada")
+                self.keys.erase(nombre)
+                return(f"Entrada {nombre} no existe, pruebe a darla de alta primero")
         else:
-            return(f"Entrada {nombre} no existe")
-    
-    
+            return (f"Entrada {nombre} esta ocupada, prueba de nuevo mas tarde")
+
     def consulta(self, nombre):
-        if nombre in self.keys:
-            while !(self.keys.estado(nombre)):
-                pass
-            self.keys.ocupar(nombre)
+        if self.keys.add(nombre):
             try:
                 result = self.db[nombre]
+                self.keys.erase(db)
+                return(f"Entrada {nombre} tiene asociado {info}")
             except KeyError:
+                self.keys.erase(db)
                 return(f"No existe una entrada {nombre} en la base de datos")
-            self.keys.liberar(nombre)
-            return(f"En la base de datos{nombre} tiene asociado {result}")
         else:
-            return(f"No existe una entrada {nombre} en la base de datos")
+            return(f"Entrada {nombre} esta ocupada, prueba de nuevo mas tarde")
+

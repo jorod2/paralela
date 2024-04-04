@@ -47,7 +47,7 @@ while flag:
         sckt.send(msj_env)
         msj_rec = sckt.recv(1024)
         respuesta = msj_rec.decode()
-        print(f"Segun el servidor, {orden} es {respuesta}", flush = True)
+        print(f"{respuesta}", flush = True)
             
 
     elif comando == "help":

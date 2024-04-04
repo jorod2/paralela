@@ -18,21 +18,20 @@ def entrada_db(info:str):
     for i in range(len(info)):
         if info[i] == ":"
             return info[:i], msg[i+1:]
-    return info[:i], ""
+    return info, ""
 
-#Funcion que parsea el futuro value de la base de datos. Devuelve la tupla vacia si encuentr aun error
+# Funcion que parsea el futuro value de la base de datos. Devuelve la tupla vacia si encuentra
+# un error
 def value(msg:str):
     n = len(msg)
-    if msg[0] == '(' and msg[n] == ')':
+    if msg[0] == '(' and msg[n-1] == ')':
         l = msg[1:n-1].split(,)
         try:
-            int(l[0])
+            l[0] = int(l[0])
             tuple(l)
-                return tuple(l)
-            else:
-                return tuple()
-        except ValueError:
-            return tuple()##Input no valido
+            return tuple(l)
+        except ValueError:#Si l[0] no es un entero
+            return tuple()
     else:
         return tuple()##Input no valido
     
@@ -51,7 +50,7 @@ def consulta(db, nombre):
 ############################################
 
 ## Funcion objetivo para las hebras
-def ft_server(cl_socket, ,db):
+def ft_server(cl_socket, functions_d, db):
     msj_rec = cl_socket.recv(1024)
     while msj_rec:
     
@@ -62,7 +61,7 @@ def ft_server(cl_socket, ,db):
         if orden == alta or orden == modificacion:
             info = value(info_str)
         
-            if info == ():
+            if info == tuple():
                 respuesta = "Esto no es una peticion valida"
         
             else:
@@ -76,7 +75,7 @@ def ft_server(cl_socket, ,db):
                 respuesta = functions_d[orden](key)
        
        
-       msj_env = respuesta.encode()
+        msj_env = respuesta.encode()
 
         cl_socket.send(msj_env)
 
