@@ -7,7 +7,7 @@ class LockedSet:
         self.keys = set()# Esto tengo que cambiarlo por un set
         self.lk = Lock()
     
-    def add(self, clave):
+    def add(self, clave:str):
         self.lk.acquire()
         if not(clave in self.keys):
             self.keys.add(clave)
@@ -17,7 +17,7 @@ class LockedSet:
             self.lk.release()
             return False
 
-    def erase(self, clave):
+    def erase(self, clave:str):
         self.lk.acquire()
         self.keys.discard(clave)
         self.lk.release()
@@ -29,7 +29,7 @@ class BaseDeDatos:
         self.db = dict()
         self.keys = LockedSet()
     
-    def alta(self, nombre, info):
+    def alta(self, nombre:str, info:tuple):
         if self.keys.add(nombre):
             if nombre in self.db:
                 self.keys.erase(nombre)
@@ -42,7 +42,7 @@ class BaseDeDatos:
         else:
             return ("Esta entrada esta ocupada, prueba de nuevo mas tarde")
     
-    def baja(self, nombre):
+    def baja(self, nombre:str):
         if self.keys.add(nombre):
             try:
                 del(self.db[nombre])
@@ -55,7 +55,7 @@ class BaseDeDatos:
             return(f"Entrada {nombre} esta ocupada, prueba de nuevo mas tarde")
 
             
-    def modificacion(self, nombre, info):
+    def modificacion(self, nombre:str, info:tuple):
         if self.keys.add(nombre):
             try:
                 self.db[nombre] = info
@@ -67,7 +67,7 @@ class BaseDeDatos:
         else:
             return (f"Entrada {nombre} esta ocupada, prueba de nuevo mas tarde")
 
-    def consulta(self, nombre):
+    def consulta(self, nombre:str):
         if self.keys.add(nombre):
             try:
                 result = self.db[nombre]

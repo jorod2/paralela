@@ -24,7 +24,7 @@ def entrada_db(info:str):
 # un error
 def value(msg:str):
     n = len(msg)
-    if msg[0] == '(' and msg[n-1] == ')':
+    if n != 0 and msg[0] == '(' and msg[n-1] == ')':
         text = msg[1:n-1]
         l = text.split(',')
         try:
@@ -37,21 +37,21 @@ def value(msg:str):
         return tuple()##Input no valido
     
 ### Funciones de soporte para el servidor ###
-def alta(db, nombre, info):
+def alta(db:basedatos.BaseDeDatos, nombre:str, info:tuple):
     return db.alta(nombre, info)
 
-def baja(db, nombre):
+def baja(db:basedatos.BaseDeDatos, nombre:str):
     return db.baja(nombre)
 
-def modificacion(db, nombre, info):
+def modificacion(db:basedatos.BaseDeDatos, nombre:str, info:tuple):
     return db.modificacion(nombre, info)
 
-def consulta(db, nombre):
+def consulta(db:basedatos.BaseDeDatos, nombre:str):
     return db.consulta(nombre)
 ############################################
 
 ## Funcion objetivo para las hebras
-def ft_server(cl_socket, functions_d, db):
+def ft_server(cl_socket:socket, functions_d:callable, db:basedatos.BaseDeDatos):
     msj_rec = cl_socket.recv(1024)
     while msj_rec:
     
@@ -61,9 +61,7 @@ def ft_server(cl_socket, functions_d, db):
         
         if orden == "alta" or orden == "modificacion":
             info = value(info_str)
-            print(f"{info}")
             if info == tuple():
-                print("a")
                 respuesta = "Esto no es una peticion valida"
         
             else:
