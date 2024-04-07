@@ -7,7 +7,7 @@ from socket import socket
 # info tiene que ser una tupla con 3 entradas: (Edad:int,Ciudad:str,telefono:str)
 
 
-
+# Funcion que devuelve la cadena de caracteres previa a un espacio
 def primera_palabra(msg:str):
     resultado = ""
     
@@ -21,19 +21,20 @@ def primera_palabra(msg:str):
     
     return resultado
 
-
+# Creamos un socket y lo conectamos a la ip del servidor
 sckt = socket()
 srvr_ip = 'localhost'
 srvr_puerto = 54321
 
 sckt.connect((srvr_ip, srvr_puerto))
 
+# Lista de las instrucciones que se le pueden dar al programa
 functions_l = ["alta", "baja", "modificacion", "consulta"]
 
 flag = True
 while flag:
     
-    
+    # Funcionamiento ddel cliente
     orden = input("Escribe una orden: ")
     comando = primera_palabra(orden)
     

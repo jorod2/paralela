@@ -1,9 +1,10 @@
 import basedatos
 from socket import socket
-from threading import Thread, active_count
+from threading import Thread
 
 
 ### Funcion para registrar la entrada del cliente ###
+# Devuelve las dos partes de la entrada seàradas
 def separador_strings(msg:str):
     
     for i in range(len(msg)):
@@ -13,7 +14,7 @@ def separador_strings(msg:str):
     
     return msg, ""
 #####################################################
-
+# Devuelve 2 strings, el primero es la key y el segundo el value que vamos a introducir en la db
 def entrada_db(info:str):
     for i in range(len(info)):
         if info[i] == ":":
@@ -56,18 +57,18 @@ def ft_server(cl_socket:socket, functions_d:callable, db:basedatos.BaseDeDatos):
     while msj_rec:
     
         peticion = msj_rec.decode()
-        orden, argumento = separador_strings(peticion)
-        key, info_str = entrada_db(argumento)
+        orden, argumento = separador_strings(peticion) # Separamos entre orden y la key:value
+        key, info_str = entrada_db(argumento) # Separamos entre la key y el value
         
-        if orden == "alta" or orden == "modificacion":
+        if orden == "alta" or orden == "modificacion":# Si la orden necesita un value para ejecutarse
             info = value(info_str)
-            if info == tuple():
+            if info == tuple():# Comprobamos si el cliente ha proporcionado value
                 respuesta = "Esto no es una peticion valida"
         
             else:
                 respuesta = functions_d[orden](db, key, info)
         
-        else:
+        else:# Si la orden no necesita el value para ejecutarse
             if info_str != "":
                 respuesta = "Esto no es una peticion valida"
             

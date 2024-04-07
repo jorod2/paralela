@@ -4,7 +4,7 @@ from threading import Lock
 # Va a servir para llevar cuenta de las claves que estan siendo usadas
 class LockedSet:
     def __init__(self):
-        self.keys = set()# Esto tengo que cambiarlo por un set
+        self.keys = set()
         self.lk = Lock()
     
     def add(self, clave:str):
@@ -24,6 +24,8 @@ class LockedSet:
 
 # La clase base de datos. Tiene metodos para dar de alta, baja, consultar, y modificar entradas
 # Consiste en un diccionario con un LockedSet
+# El diccionario lleva la cuenta de las entradas y el LockedSet lleva la cuenta de las keys en las 
+# que esta operando alguna hebra del servidor
 class BaseDeDatos:
     def __init__(self):
         self.db = dict()
